@@ -1,0 +1,7 @@
+{
+  "best_model": "Logistic Regression",
+  "best_accuracy": 0.9779735682819384,
+  "dataset_size": 2267,
+  "features_count": 5191,
+  "training_date": "2026-07-08T13:56:53.709601"
+}

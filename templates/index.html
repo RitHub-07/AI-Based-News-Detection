@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FakeNewsAI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <i class="bi bi-shield-shaded"></i>
+            FakeNewsAI
+        </div>
+        <div class="nav-links">
+            <a href="#home" class="nav-item">Home</a>
+            <a href="#about" class="nav-item">About</a>
+            <a href="#checker" class="nav-item">Checker</a>
+            <a href="#metrics" class="nav-item">Metrics</a>
+            <a href="#contact" class="nav-item">Contact</a>
+        </div>
+    </nav>
+
+    <main>
+        <section id="home" class="scroll-section">
+            <div class="hero container">
+                <div class="hero-content">
+                    <span class="badge"><i class="fas fa-robot"></i> News Verification System</span>
+                    <h1>Combat Misinformation with <span>Advanced AI</span></h1>
+                    <p>Analyze news text and determine whether it is Real or Fake using a trained machine learning model with live verification support.</p>
+                    <div class="hero-btns">
+                        <a href="#checker" class="btn btn-primary"><i class="fas fa-search"></i> Check News Now</a>
+                        <a href="#metrics" class="btn btn-secondary">View Metrics</a>
+                    </div>
+                    <div class="stats-strip">
+                        <div class="s-item">
+                            <h3>ML Model</h3>
+                            <p>Text Classification</p>
+                        </div>
+                        <div class="s-item">
+                            <h3>Live Checks</h3>
+                            <p>Fact & News Sources</p>
+                        </div>
+                        <div class="s-item">
+                            <h3>Fast Result</h3>
+                            <p>Instant Verdict</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-image">
+                    <div class="analysis-card">
+                        <h3><i class="bi bi-cloud-arrow-up"></i> Verification Preview</h3>
+                        <div class="metric">
+                            <div class="m-info"><span>Fact Check</span> <span>Enabled</span></div>
+                            <div class="progress-bg"><div class="progress-fill green-grad" style="width: 92%;"></div></div>
+                        </div>
+                        <div class="metric">
+                            <div class="m-info"><span>NewsAPI</span> <span>Enabled</span></div>
+                            <div class="progress-bg"><div class="progress-fill orange-grad" style="width: 88%;"></div></div>
+                        </div>
+                        <div class="metric">
+                            <div class="m-info"><span>Groq Analysis</span> <span>Enabled</span></div>
+                            <div class="progress-bg"><div class="progress-fill green-grad" style="width: 90%;"></div></div>
+                        </div>
+                        <div class="status-verified"><i class="bi bi-patch-check-fill"></i> READY</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="scroll-section">
+            <div class="section-header text-center" style="margin-bottom: 60px;">
+                <h2 class="section-title">About Our Technology</h2>
+                <p class="section-sub">Understanding the science behind fake news detection</p>
+            </div>
+
+            <div class="container">
+                <div class="stats-grid-4" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="perf-card-modern">
+                        <div class="p-icon-box-purple">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3>Machine Learning</h3>
+                        <p class="p-desc">Logistic Regression model trained to classify news text as Real or Fake.</p>
+                    </div>
+
+                    <div class="perf-card-modern">
+                        <div class="p-icon-box-purple">
+                            <i class="fas fa-language"></i>
+                        </div>
+                        <h3>Natural Language Processing</h3>
+                        <p class="p-desc">TF-IDF vectorization is used to convert news text into numerical features for prediction.</p>
+                    </div>
+
+                    <div class="perf-card-modern">
+                        <div class="p-icon-box-purple">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Live Verification</h3>
+                        <p class="p-desc">Google Fact Check, NewsAPI, and Groq are used for supporting verification results.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="checker" class="scroll-section container">
+            <div class="section-header text-center" style="margin-bottom: 50px;">
+                <h2 class="section-title">News Authenticity Checker</h2>
+                <p class="section-sub">Paste any news article or text to check its authenticity.</p>
+            </div>
+
+            <div class="checker-ui-box">
+                <div class="ui-header-modern">
+                    <i class="far fa-edit"></i>
+                    <span class="header-text-white">Enter News Text</span>
+                </div>
+
+                <form action="{{ url_for('predict') }}#checker" method="POST">
+                    <div class="textarea-container">
+                        <textarea name="news_text" placeholder="Paste your news article or text here for analysis..." required>{{ original_text|default('', true) }}</textarea>
+                    </div>
+
+                    <div class="ui-footer-modern">
+                        <div class="char-count">0 characters</div>
+                        <button type="submit" class="btn-analyze-purple">
+                            <i class="fas fa-search"></i> Analyze News
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            {% if error %}
+            <div class="details-card" style="margin-top:20px;">
+                <h3><i class="fas fa-triangle-exclamation"></i> Error</h3>
+                <div class="detail-item">{{ error }}</div>
+            </div>
+            {% endif %}
+
+            {% if prediction_done %}
+            <div class="prediction-container">
+                <div class="result-alert {% if final_status == 'FAKE' %}alert-fake{% else %}alert-real{% endif %}">
+                    <div class="alert-icon">
+                        {% if final_status == 'FAKE' %}
+                            <i class="bi bi-x-square-fill"></i>
+                        {% else %}
+                            <i class="bi bi-patch-check-fill"></i>
+                        {% endif %}
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-header">
+                            <h2>{{ final_status }}</h2>
+                            <span class="confidence-badge">{{ confidence }}% Confident</span>
+                        </div>
+                        <p>
+                            Our model has classified this content as likely
+                            {% if final_status == 'FAKE' %}
+                                fake
+                            {% elif final_status == 'NEEDS VERIFICATION' %}
+                                suspicious
+                            {% else %}
+                                authentic
+                            {% endif %}.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="breakdown-section">
+                    <h3 class="breakdown-title"><i class="fas fa-poll"></i> Probability Breakdown</h3>
+
+                    <div class="prob-wrapper">
+                        <span class="prob-label fake-text">FAKE</span>
+                        <div class="prob-bar-container">
+                            <div class="prob-bar-fill fake-fill" style="width: {{ prob_fake }}%;"></div>
+                        </div>
+                        <span class="prob-percent">{{ prob_fake }}%</span>
+                    </div>
+
+                    <div class="prob-wrapper">
+                        <span class="prob-label real-text">REAL</span>
+                        <div class="prob-bar-container">
+                            <div class="prob-bar-fill real-fill" style="width: {{ prob_real }}%;"></div>
+                        </div>
+                        <span class="prob-percent">{{ prob_real }}%</span>
+                    </div>
+                </div>
+
+                <div class="details-card">
+                    <h3><i class="fas fa-info-circle"></i> Analysis Details</h3>
+                    <div class="detail-item"><strong>Model Used:</strong> Logistic Regression</div>
+                    <div class="detail-item"><strong>Confidence Level:</strong> {{ confidence }}%</div>
+                    <div class="detail-item"><strong>Timestamp:</strong> {{ timestamp }}</div>
+                    <div class="detail-item"><strong>Processing Time:</strong> {{ processing_time }} seconds</div>
+                </div>
+
+                <div class="details-card" style="margin-top:20px;">
+                    <h3><i class="fas fa-globe"></i> Live Verification</h3>
+                    <div class="detail-item"><strong>Google Fact Check:</strong> {{ live_data.status | default('N/A', true) }}</div>
+                    <div class="detail-item"><strong>NewsAPI Check:</strong> {{ news_verification.status | default('N/A', true) }}</div>
+                    <div class="detail-item"><strong>Groq:</strong> {{ groq_result | default('N/A', true) }}</div>
+                </div>
+            </div>
+            {% endif %}
+        </section>
+
+        <section id="metrics" class="scroll-section container">
+            <div class="section-header text-center" style="margin-bottom: 60px;">
+                <h2 class="section-title">System Metrics</h2>
+                <p class="section-sub">Current analysis and verification indicators.</p>
+            </div>
+
+            <div class="stats-grid-4">
+                <div class="perf-card-modern">
+                    <div class="p-icon-box-purple"><i class="fas fa-bullseye"></i></div>
+                    <h3>Prediction Result</h3>
+                    <div class="p-val-big">
+                        {% if final_status == 'REAL' %}
+                            This is REAL
+                        {% elif final_status == 'FAKE' %}
+                            This is FAKE
+                        {% elif final_status == 'NEEDS VERIFICATION' %}
+                            Needs Verification
+                        {% else %}
+                            REAL / FAKE
+                        {% endif %}
+                    </div>
+                    <p class="p-desc">Final verdict from the model</p>
+                </div>
+
+                <div class="perf-card-modern">
+                    <div class="p-icon-box-purple"><i class="fas fa-percent"></i></div>
+                    <h3>Confidence Score</h3>
+                    <div class="p-val-big">{{ confidence|default('0') }}%</div>
+                    <p class="p-desc">Model certainty for the result</p>
+                </div>
+
+                <div class="perf-card-modern">
+                    <div class="p-icon-box-purple"><i class="fas fa-shield-alt"></i></div>
+                    <h3>Live Verification</h3>
+                    <div class="p-val-big">
+                        {% set google_status = live_data.status|default('N/A', true) %}
+                        {% set news_status = news_verification.status|default('N/A', true) %}
+                        {% if google_status == 'Found' or news_status == 'Found' %}
+                            Found
+                        {% elif google_status == 'Unavailable' and news_status == 'Unavailable' %}
+                            Unavailable
+                        {% else %}
+                            Not Found
+                        {% endif %}
+                    </div>
+                    <p class="p-desc">Fact-check and news API status</p>
+                </div>
+
+                <div class="perf-card-modern">
+                    <div class="p-icon-box-purple"><i class="fas fa-clock"></i></div>
+                    <h3>Processing Time</h3>
+                    <div class="p-val-big">{{ processing_time|default('0') }} s</div>
+                    <p class="p-desc">Time taken for analysis</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="scroll-section container">
+            <div class="section-header text-center" style="margin-bottom: 60px;">
+                <h2 class="section-title-white">Get In Touch</h2>
+                <p class="section-sub-dim">Have a query about our news verification system</p>
+            </div>
+
+            <div class="contact-layout-modern">
+                <div class="contact-info-side">
+                    <h3 class="info-title">Contact Information</h3>
+                    <div class="info-item">
+                        <div class="mini-icon-purple"><i class="fas fa-envelope"></i></div>
+                        <span>contact@yourdomain.com</span>
+                    </div>
+                    <div class="info-item">
+                        <div class="mini-icon-purple"><i class="fas fa-map-marker-alt"></i></div>
+                        <span>India</span>
+                    </div>
+
+                    <div class="social-links-box">
+                        <a class="social-btn" href="https://www.linkedin.com/in/rituldingora" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                        <a class="social-btn" href="https://www.pinterest.com/your-profile" target="_blank" rel="noopener noreferrer" aria-label="Pinterest">
+                            <i class="bi bi-pinterest"></i>
+                        </a>
+                        <a class="social-btn" href="https://x.com/your-profile" target="_blank" rel="noopener noreferrer" aria-label="X">
+                            <i class="bi bi-twitter-x"></i>
+                        </a>
+                        <a class="social-btn" href="https://github.com/RitHub-07" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                            <i class="bi bi-github"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="contact-form-card">
+                    <form id="contact-form" action="https://formspree.io/f/xqenyeyr" method="POST">
+                        <input type="text" id="name" name="name" class="modern-input" placeholder="Your Name" autocomplete="name" required>
+                        <input type="email" id="email" name="email" class="modern-input" placeholder="Your Email" autocomplete="email" required>
+                        <textarea id="message" name="message" class="modern-input textarea-fix" placeholder="Your Message" rows="5" required></textarea>
+
+                        <button type="submit" id="submit-btn" class="btn-send-glow">
+                            <span id="btn-text">Send Message</span>
+                        </button>
+
+                        <div id="form-status" class="form-status" style="display:none;"></div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer-main">
+        <div class="logo"><i class="bi bi-shield-shaded"></i> FakeNewsAI</div>
+        <p>&copy; 2026 FakeNewsAI. All rights reserved.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
